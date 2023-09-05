@@ -23,7 +23,7 @@ async function handleLogin(event) {
 
             localStorage.setItem('token', responseData.token);;
             console.log(`Logged in successfully!`);
-            window.location.href= "Expense.html";
+            window.location.href= "chat.html";
         } else {
             alert("Loogining Failed");
             console.log('Login failed. Invalid credentials.');
