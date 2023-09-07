@@ -1,7 +1,6 @@
-let currentPage = 1;
-
 const userForm = document.getElementById('user-form');
 const userList = document.getElementById('user-list');
+const groupList = document.getElementById('group-list');
 
 userForm.addEventListener('submit', handleUserForm);
 
@@ -13,14 +12,16 @@ async function handleUserForm(event) {
     const userData = { message };
 
     const token = localStorage.getItem('token');
+    const groupId = localStorage.getItem('token_group_id');
 
     if(token) {
         try {
-            const response = await fetch(`/exp`, {
+            const response = await fetch(`/message`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'Group-ID': groupId
                 },
                 body: JSON.stringify(userData)
             });
@@ -29,7 +30,7 @@ async function handleUserForm(event) {
                 console.log(`Message created successfully!${token}`);
                 userForm.reset();
     
-                fetchUsers();
+                fetchmessage();
             } else {
                 console.log('Error creating message.');
             }
@@ -41,11 +42,12 @@ async function handleUserForm(event) {
     }
 };    
 
-function fetchUsers() {
-    fetch(`/message`, {
+async function fetchmessage() {
+    const groupId = localStorage.getItem('token_group_id');
+    await fetch(`/message`, {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Group-ID': groupId
         }
     })
     .then(response => response.json())
@@ -55,7 +57,7 @@ function fetchUsers() {
                 const li = document.createElement('li');
                 li.textContent = `${user.message}    `;
                 const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Delete';
+                deleteButton.textContent = '';
                 deleteButton.addEventListener('click', () => {
                     deleteUser(user.id);
                 });
@@ -64,9 +66,32 @@ function fetchUsers() {
                 
             });
         })
-        .catch(error => console.error('Error:', error));
+    .catch(error => console.error('Error:', error));
 }
 
+async function fetchgroups() {
+    await fetch(`/group/message`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token','token_group_id')}`
+        }
+    })
+    .then(response => response.json())
+        .then(users => {
+            console.log("USERS", users);
+            userList.innerHTML = '';
+            users.forEach(user => {
+                const li = document.createElement('li');
+                li.textContent = `${user.name}  -  ${user.member_names}  `;
+
+                li.addEventListener('click', () => openMessageTab(user));
+                groupList.appendChild(li);
+                
+            });
+        })
+    .catch(error => console.error('Error:', error));
+};
+/*
 async function deleteUser(userId) {
     try {
         const response = await fetch(`/message/${userId}`, {
@@ -77,7 +102,7 @@ async function deleteUser(userId) {
         });
 
         if (response.ok) {
-            fetchUsers();
+            fetchmessage();
         } else {
             console.error('Error deleting user.');
         }
@@ -85,8 +110,33 @@ async function deleteUser(userId) {
         console.error('Error:', error);
     }
 }
+*/
+function openMessageTab(user) {
+    console.log("><><", user.id);
+    localStorage.setItem('token_group_id', user.id);
+    const messageTab = document.getElementById('message-tab');
+    messageTab.innerHTML = '';
+    
+    const messageTabContent = document.createElement('div');
+    messageTabContent.textContent = `Group: ${user.name}`;
 
-fetchUsers();
+    const memberList = document.createElement('ul');
+
+    const memberItem = document.createElement('li');
+    memberItem.textContent = `Members: ${user.member_names}`;
+    memberList.appendChild(memberItem);
+
+    messageTabContent.appendChild(memberList);
+    messageTab.appendChild(messageTabContent);
+    fetchmessage();
+
+};    
+
+
+fetchgroups();
+
+
+
 
 
 

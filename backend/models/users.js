@@ -2,20 +2,10 @@ const Sequelize = require('sequelize');
 const sequelize = require('../util/dataB');
 
 const User = sequelize.define('user', {
-    id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        allowNull: false,
-        primaryKey: true
-    },
     name: Sequelize.STRING,
-    email: {
-       type:  Sequelize.STRING,
-       allowNull: false,
-    },
-    number:Sequelize.STRING,
+    email:  Sequelize.STRING,
+    number:Sequelize.INTEGER,
     password: Sequelize.STRING,
-    ispremiumuser: Sequelize.BOOLEAN
 });
 
 module.exports = User;

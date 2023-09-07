@@ -1,0 +1,10 @@
+.container {
+    text-align: center;
+    border: 2px solid black;
+    height: 600px;
+}
+
+#people-list {
+    list-style: none;
+    padding: 0;
+}

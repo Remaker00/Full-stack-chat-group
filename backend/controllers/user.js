@@ -1,3 +1,4 @@
+const Sequelize = require('sequelize');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/users');
@@ -34,5 +35,24 @@ exports.checkusers = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).send('Error Logging user.');
+    }
+};
+
+exports.findAllusers = async (req, res) => {
+    try {
+        const currentUserID = req.user.id;
+        const people = await User.findAll({
+            where: {
+                id: {
+                    [Sequelize.Op.not]: currentUserID // Exclude the current user
+                }
+            }
+        });
+        console.log("><><><", currentUserID)
+        res.status(200).json(people);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error fetching peoples.');
     }
 };

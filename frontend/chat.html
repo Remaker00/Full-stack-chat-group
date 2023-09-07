@@ -5,21 +5,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Page</title>
+    <link rel="stylesheet" href="style2.css">
 </head>
 
 <body>
     <div class="container">
-        <h1>GROUP CHATS</h1>
-        <form id="user-form">
-            <label for="message"></label>
-            <input type="text" id="message">
-            <button type="submit">Send</button>
-        </form>
-        <p>CHATS</p>
-        <ul id="user-list"></ul>
-        <script src="purchase.js"></script>
-
+        <div class="sidebar">
+            <div class="link">
+                <p>Create A Group  <a href="create_group.html"> + </a></p>
+            </div>
+            <div class="main-groups">
+                <h3>My Groups</h3>
+                <ul id="group-list"></ul>
+            </div>
+        </div>
+        <div class="main-container">
+            <div id="chat-container">
+                <div id="message-tab"></div>
+                <ul id="user-list"></ul>
+            </div>
+            <form id="user-form">
+                <input type="text" id="message" placeholder="Type a message...">
+                <button type="submit">Send</button>
+            </form>
+        </div>
     </div>
+    <script src="chat.js"></script>
 </body>
 
 </html>
