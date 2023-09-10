@@ -23,6 +23,8 @@ async function handlegroup(event) {
 
         groupform.reset();
         alert(`${name} Group Successfully Created`); 
+
+        window.location.href = "chat.html";
     } catch (error) {
         console.error('Error:', error);
     }

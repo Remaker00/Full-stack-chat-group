@@ -44,11 +44,10 @@ exports.findAllusers = async (req, res) => {
         const people = await User.findAll({
             where: {
                 id: {
-                    [Sequelize.Op.not]: currentUserID // Exclude the current user
+                    [Sequelize.Op.not]: currentUserID 
                 }
             }
         });
-        console.log("><><><", currentUserID)
         res.status(200).json(people);
 
     } catch (err) {

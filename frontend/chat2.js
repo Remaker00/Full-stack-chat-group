@@ -1,5 +1,3 @@
-const socket = io();
-
 const userForm = document.getElementById('user-form');
 const userList = document.getElementById('user-list');
 const userList2 = document.getElementById('user-list2');
@@ -7,34 +5,6 @@ const groupList = document.getElementById('group-list');
 document.getElementById('admin').style.display = 'none';
 
 userForm.addEventListener('submit', handleUserForm);
-
-
-socket.on('message', (message) => {
-  addMessage(message);
-});
-
-socket.on('senderName', (senderName) => {
-    addSenderName(senderName);
-});
-
-
-function addMessage(message) {
-  const li = document.createElement('li');
-  li.textContent = message;
-  li.classList.add('chat-message');
-  userList.appendChild(li);
-}
-
-function addSenderName(senderName) {
-    // You can add the sender's name to the message here
-    // Create a new element or modify the existing message element to include the sender's name
-    // For example, you can add it as a data attribute or within a separate div
-    // Example:
-    const messageLi = userList.lastChild; // Assuming the sender's name corresponds to the last message
-    const senderNameDiv = document.createElement('div');
-    senderNameDiv.textContent = `Sender: ${senderName}`;
-    messageLi.appendChild(senderNameDiv);
-  }
 
 async function handleUserForm(event) {
     event.preventDefault();
@@ -62,7 +32,6 @@ async function handleUserForm(event) {
                 console.log(`Message created successfully!${token}`);
                 userForm.reset();
     
-                socket.emit('message', message);
                 fetchmessage();
             } else {
                 console.log('Error creating message.');
@@ -73,8 +42,6 @@ async function handleUserForm(event) {
     } else {
         console.log("Token not found!");
     }
-    userForm.reset();
-    addMessage();
 };    
 
 async function fetchmessage() {
@@ -113,8 +80,6 @@ async function fetchmessage() {
                 li.appendChild(upper);
                 li.appendChild(messageText);
                 userList.appendChild(li);
-
-                socket.emit('senderName', user.sender_name);
   
             });
         })

@@ -8,7 +8,7 @@ async function handleLogin(event) {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
-    const data = { email, password,  };
+    const data = { email, password  };
     try {
         const response = await fetch('/user/login', {
             method: 'POST',
