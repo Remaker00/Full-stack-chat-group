@@ -16,7 +16,7 @@ h1 {
 }
 
 /* Form container styles */
-#signupform ,#loginform {
+#signupform ,#loginform, #passwordform, #resetform {
     max-width: 400px;
     margin: 0 auto;
     background-color: #fff;
@@ -43,11 +43,12 @@ input[type="text"],
 input[type="email"],
 input[type="number"],
 input[type="password"] {
-    width: 100%;
+    width: 94%;
     padding: 10px;
     margin-bottom: 20px;
     border: 1px solid #ccc;
     border-radius: 4px;
+
 }
 
 /* Button styles */

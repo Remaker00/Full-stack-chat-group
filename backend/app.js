@@ -23,11 +23,15 @@ const userRoutes = require('./routes/user');
 const messageRoutes = require('./routes/chat');
 const groupRoutes = require('./routes/groups');
 const adminRoutes = require('./routes/admin');
+const passwordRoutes = require('./routes/password')
+const resetpasswordRoutes = require('./routes/resetpassword')
 
 app.use('/user', userRoutes);
 app.use('/message', messageRoutes);
 app.use('/group', groupRoutes);
 app.use('/admin', adminRoutes);
+app.use('/password', passwordRoutes);
+app.use('/resetpassword', resetpasswordRoutes);
 
 User.hasMany(Chat);
 Chat.belongsTo(User);

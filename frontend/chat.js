@@ -26,11 +26,7 @@ function addMessage(message) {
 }
 
 function addSenderName(senderName) {
-    // You can add the sender's name to the message here
-    // Create a new element or modify the existing message element to include the sender's name
-    // For example, you can add it as a data attribute or within a separate div
-    // Example:
-    const messageLi = userList.lastChild; // Assuming the sender's name corresponds to the last message
+    const messageLi = userList.lastChild; 
     const senderNameDiv = document.createElement('div');
     senderNameDiv.textContent = `Sender: ${senderName}`;
     messageLi.appendChild(senderNameDiv);

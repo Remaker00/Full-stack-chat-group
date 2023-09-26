@@ -13,18 +13,19 @@
     <form id="signupform">
         <h2>SIGNUP FORM</h2>
         <label for="name">User Name:</label>
-        <input type="text" id="name">
+        <input type="text" id="name" required>
         <label for="email">User Email:</label>
-        <input type="email" id="email">
+        <input type="email" id="email" required>
         <label for="number">User Phone Number:</label>
-        <input type="number" id="number">
+        <input type="number" id="number" required>
         <label for="pass">User Password:</label>
-        <input type="text" id="password">
+        <input type="text" id="password" required>
         <button type="submit" id="signup">SignUp</button>
+        <div class="link">
+            <a href="login.html">Login User</a>
+        </div>
     </form>
-    <div class="link">
-        <a href="login.html">Login User</a>
-    </div>
+    
     <script src="signup.js"></script>
 </body>
 

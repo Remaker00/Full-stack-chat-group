@@ -26,7 +26,6 @@ async function handleSignup(event) {
     } catch (error) {
         console.error('Error:', error);
     }
-
 };
 
 

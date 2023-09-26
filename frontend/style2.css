@@ -101,7 +101,6 @@ a {
     z-index: 1;
     position: fixed;
     top: 25px;
-    right: 25%;
     padding: 10px;
 }
 
@@ -130,7 +129,6 @@ ul,li {
     overflow-y: auto;
     height: 400px;
     display: flex;
-        /* Use flexbox for message alignment */
     flex-direction: column;
 }
 
