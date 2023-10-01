@@ -4,50 +4,72 @@ const Group = require('../models/groups');
 
 
 exports.insertchats = async (req, res) => {
-    const token_group_id = req.header('Group-ID');
-    const { message} = req.body;
-    await Chat.create({ message, sender_name: req.user.name, userId: req.user.id, groupId: token_group_id })
-        .then(message => {
-            return res.status(201).json({message, success: true } );
-    }).catch(err => {
-        return res.status(403).json({success : false, error: err})
-    })
+    const { message } = req.body;
+    const groupId = req.headers['group-id'];
+    const existingGroup = await Group.findOne({ _id: groupId });
+
+    try {
+        const chat = new Chat({
+            message,
+            sender_name: req.user.name,
+            user: {
+                name: req.user.name,
+                userId: req.user._id
+            },
+            group: {
+                name: existingGroup.name,
+                groupId: groupId
+            },
+        });
+
+        await chat.save();
+
+        res.status(201).json({ message: chat.message, success: true });
+    }
+    catch (err) {
+        console.error(err);
+        res.status(403).json({ success: false, error: err });
+    }
 };
 
 
 exports.getAllchats = async (req, res) => {
-    const token_group_id = req.header('Group-ID');
+    const groupId = req.headers['group-id'];
     try {
-        const isAdmin = await checkIfUserIsAdmin(token_group_id, req.user.id);
+        const isAdmin = await checkIfUserIsAdmin(groupId, req.user._id);
 
-        const message = await Chat.findAll({
-            where: {
-                groupId: token_group_id
-            },
-            include: [{ model: User, attributes: ['name'] }],
-            order: [['createdAt', 'ASC']]
-        });
+        const messages = await Chat.find({ 'group.groupId': groupId })
+            .populate('user', 'name')
+            .sort({ timestamp: 1 });
+
         const obj1 = {
             userName: req.user.name,
-            messages: message,
-            isAdmin: isAdmin
+            messages: messages,
+            isAdmin: isAdmin,
         };
-        res.status(200).json(obj1);
 
-    } catch (err) {
+        res.status(200).json(obj1);
+    }
+
+    catch (err) {
         console.error(err);
         res.status(500).send('Error fetching messages.');
     }
 };
 
 
-async function checkIfUserIsAdmin(token_group_id, userId) {
-    const group = await Group.findByPk(token_group_id);
+async function checkIfUserIsAdmin(groupId, userId) {
+    try {
+        const group = await Group.findById(groupId);
 
-    if (!group) {
+        if (!group) {
+            return false;
+        }
+        return group.user.userId.equals(userId);
+    } catch (err) {
+        console.error(err);
         return false;
     }
-    return group.userId === userId;
 }
 
 

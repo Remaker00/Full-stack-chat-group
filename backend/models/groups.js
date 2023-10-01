@@ -1,14 +1,31 @@
-const Sequelize = require('sequelize');
-const sequelize = require('../util/dataB');
+const mongoose = require('mongoose');
 
-const Group = sequelize.define('groups', {
-    name: Sequelize.STRING,
-    member_names: Sequelize.STRING,
-    member_ids: {
-        type: Sequelize.JSON, // Use JSON data type to store an array
-        allowNull: true,
-        defaultValue: [], // Initialize it as an empty array
+const Schema = mongoose.Schema;
+
+const groupSchema = new Schema({
+    name: {
+        type: String,
+        required: true,
     },
+    member_names: {
+        type: String,
+        required: true,
+    },
+    member_ids: {
+        type: [String], 
+        default: [],    
+    },
+    user: {
+        name: {
+          type: String,
+          required: true
+        },
+        userId: {
+          type: Schema.Types.ObjectId,
+          required: true,
+          ref: 'User'
+        }
+    }
 });
 
-module.exports = Group;
+module.exports = mongoose.model('Group', groupSchema);

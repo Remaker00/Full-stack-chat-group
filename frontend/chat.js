@@ -10,7 +10,7 @@ userForm.addEventListener('submit', handleUserForm);
 
 
 socket.on('message', (message) => {
-  addMessage(message);
+    addMessage(message);
 });
 
 socket.on('senderName', (senderName) => {
@@ -19,18 +19,18 @@ socket.on('senderName', (senderName) => {
 
 
 function addMessage(message) {
-  const li = document.createElement('li');
-  li.textContent = message;
-  li.classList.add('chat-message');
-  userList.appendChild(li);
+    const li = document.createElement('li');
+    li.textContent = message;
+    li.classList.add('chat-message');
+    userList.appendChild(li);
 }
 
 function addSenderName(senderName) {
-    const messageLi = userList.lastChild; 
+    const messageLi = userList.lastChild;
     const senderNameDiv = document.createElement('div');
     senderNameDiv.textContent = `Sender: ${senderName}`;
     messageLi.appendChild(senderNameDiv);
-  }
+}
 
 async function handleUserForm(event) {
     event.preventDefault();
@@ -41,8 +41,9 @@ async function handleUserForm(event) {
 
     const token = localStorage.getItem('token');
     const groupId = localStorage.getItem('token_group_id');
+    console.log("><><><", groupId);
 
-    if(token) {
+    if (token) {
         try {
             const response = await fetch(`/message`, {
                 method: 'POST',
@@ -53,11 +54,11 @@ async function handleUserForm(event) {
                 },
                 body: JSON.stringify(userData)
             });
-    
+
             if (response.ok) {
                 console.log(`Message created successfully!${token}`);
                 userForm.reset();
-    
+
                 socket.emit('message', message);
                 fetchmessage();
             } else {
@@ -71,7 +72,7 @@ async function handleUserForm(event) {
     }
     userForm.reset();
     addMessage();
-};    
+};
 
 async function fetchmessage() {
     const groupId = localStorage.getItem('token_group_id');
@@ -82,25 +83,25 @@ async function fetchmessage() {
             'Group-ID': groupId
         }
     })
-    .then(response => response.json())
+        .then(response => response.json())
         .then(users => {
             userList.innerHTML = '';
             if (users.isAdmin === true) {
                 document.getElementById('admin').style.display = 'block';
-            }else {
+            } else {
                 document.getElementById('admin').style.display = 'none';
             }
             users.messages.forEach(user => {
                 const li = document.createElement('li');
-                li.className = 'chat-message'; 
+                li.className = 'chat-message';
 
                 if (user.sender_name === users.userName) {
-                    li.classList.add('your-message'); 
+                    li.classList.add('your-message');
                 }
 
                 const upper = document.createElement('div');
                 upper.className = 'sender-name';
-                upper.textContent = `${user.sender_name} | ${user.createdAt} `;
+                upper.textContent = `${user.sender_name}`;
 
                 const messageText = document.createElement('div');
                 messageText.className = 'message-text';
@@ -111,48 +112,58 @@ async function fetchmessage() {
                 userList.appendChild(li);
 
                 socket.emit('senderName', user.sender_name);
-  
+
             });
         })
-    .catch(error => console.error('Error:', error));
+        .catch(error => console.error('Error:', error));
 }
 
 async function fetchgroups() {
     const token = localStorage.getItem('token');
-    await fetch(`/group/message`, {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token','token_group_id')}`
-        }
-    })
-    .then(response => response.json())
-        .then(users => {
-            userList.innerHTML = '';
-            users.forEach(user => {
-                const li = document.createElement('li');
-                li.textContent = `${user.name}  -  ${user.member_names}  `;
+    
+    try {
+        const response = await fetch(`/group/message`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+        });
 
-                li.addEventListener('click', () => openMessageTab(user));
-                groupList.appendChild(li);
-                
-            });
-        })
-    .catch(error => console.error('Error:', error));
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+        }
+
+        const groups = await response.json();
+
+        groupList.innerHTML = '';
+
+        groups.forEach(group => {
+            const li = document.createElement('li');
+            li.textContent = `${group.name}  -  ${group.member_names}  `;
+
+            li.addEventListener('click', () => openMessageTab(group));
+            groupList.appendChild(li);
+
+        });
+    }
+    catch (error) {
+        console.error('Error:', error);
+    }
 };
 
 
-function openMessageTab(user) {
-    localStorage.setItem('token_group_id', user.id);
+function openMessageTab(group) {
+    localStorage.setItem('token_group_id', group._id);
     const messageTab = document.getElementById('message-tab');
     messageTab.innerHTML = '';
-    
+
     const messageTabContent = document.createElement('div');
-    messageTabContent.textContent = `Group: ${user.name}`;
-    
+    messageTabContent.textContent = `Group: ${group.name}`;
+
     messageTab.appendChild(messageTabContent);
     fetchmessage();
 
-};    
+};
 
 
 fetchgroups();

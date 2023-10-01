@@ -1,10 +1,42 @@
-const Sequelize = require('sequelize');
-const sequelize = require('../util/dataB');
+const mongoose = require('mongoose');
 
-const Chat = sequelize.define('messages', {
-    message: Sequelize.STRING,
-    sender_name: Sequelize.STRING,
-    timestamp: Sequelize.DATE
+const Schema = mongoose.Schema;
+
+const chatSchema = new Schema({
+    message: {
+        type: String,
+        required: true,
+    },
+    sender_name: {
+        type: String,
+        required: true,
+    },
+    timestamp: {
+        type: Date,
+        default: Date.now, 
+    },
+    user: {
+        name: {
+          type: String,
+          required: true
+        },
+        userId: {
+          type: Schema.Types.ObjectId,
+          required: true,
+          ref: 'User'
+        }
+    },
+    group: {
+        name: {
+          type: String,
+          required: false
+        },
+        groupId: {
+          type: Schema.Types.ObjectId,
+          required: true,
+          ref: 'Group'
+        }
+    }
 });
 
-module.exports = Chat;
+module.exports = mongoose.model('Chat', chatSchema);

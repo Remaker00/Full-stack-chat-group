@@ -4,7 +4,7 @@ require('dotenv').config();
 const client = Sib.ApiClient.instance;
 
 const apiKey = client.authentications['api-key'];
-apiKey.apiKey = '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';
+apiKey.apiKey = process.env.API_KEY;
 
 const tranEmailApi = new Sib.TransactionalEmailsApi();
 

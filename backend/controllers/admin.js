@@ -3,19 +3,17 @@ const User = require('../models/users');
 const Group = require('../models/groups');
 
 exports.findeveryusers = async (req, res) => {
-    const token_group_id = req.header('Group-ID');
+    const groupId= req.headers['group-id'];
     try {
-        const existingGroup = await Group.findByPk(token_group_id);
+        const existingGroup = await Group.findOne({ _id: groupId });
         const currentUser = req.user.name;
 
         const memberNamesArray = existingGroup.member_names.split(',').map(name => name.trim());
     
-        const newpeople = await User.findAll({
-            where: {
-                name: {
-                [Sequelize.Op.notIn]: memberNamesArray
-                },
-            }
+        const newpeople = await User.find({
+            name: {
+                $nin: memberNamesArray,
+            },
         });
 
         const newpeopleArray = newpeople.map(person => person.toJSON());
@@ -39,14 +37,14 @@ exports.findeveryusers = async (req, res) => {
 };
 
 exports.changegroupname = async (req, res) => {
-    const names = req.body;
-    const token_group_id = req.header('Group-ID');
+    const { name } = req.body;
+    const groupId = req.headers['group-id'];
 
     try {
-        const group = await Group.findByPk(token_group_id);
+        const group = await Group.findById(groupId);
 
-        if(names.name) {
-            group.name = names.name;
+        if (name) {
+            group.name = name;
             await group.save();
         }
 
@@ -57,12 +55,13 @@ exports.changegroupname = async (req, res) => {
     }
 };
 
+
 exports.removeOldpeople = async (req, res) => {
     const { selectedUserIds } = req.body;
-    const token_group_id = req.header('Group-ID');
+    const groupId = req.headers['group-id'];
 
     try {
-        const group = await Group.findByPk(token_group_id);
+        const group = await Group.findById(groupId);
 
         const currentMembers = group.member_names.split(', ');
 
@@ -72,42 +71,55 @@ exports.removeOldpeople = async (req, res) => {
 
         group.member_names = updatedMemberNames;
 
+        group.member_ids = group.member_ids.filter(memberId => !selectedUserIds.includes(memberId));
+
         await group.save();
 
         res.status(201).send('User removed successfully.');
     } catch (err) {
         console.error(err);
-        res.status(500).send('Error creating group.');
+        res.status(500).send('Error removing user.');
     }
 };
 
 exports.addNewpeople = async (req, res) => {
     const { selectedUserIds } = req.body;
-    const userId = parseInt(selectedUserIds[0]);
-    const token_group_id = req.header('Group-ID');
+    const groupId = req.headers['group-id'];
+    console.log("><><><",groupId);
 
     try {
-        const group = await Group.findByPk(token_group_id);
-        const user = await User.findByPk(userId);
+        const group = await Group.findById(groupId);
 
-        const currentMembers = group.member_names.split(', ');
-
-        if (!currentMembers.includes(user.name)) {
-            currentMembers.push(user.name);
-        } else {
-            return res.status(400).json({ error: 'User is already a member of the group' });
+        if (!group) {
+            return res.status(404).json({ error: 'Group not found' });
         }
 
-        const updatedMemberNames = currentMembers.join(', ');
+        const currentMembers = group.member_ids.map(String);
 
-        group.member_names = updatedMemberNames;
+        console.log("><><><",currentMembers);
+
+        if (!Array.isArray(selectedUserIds) || selectedUserIds.length === 0) {
+            return res.status(400).json({ error: 'Invalid selectedUserIds data' });
+        }
+
+        const alreadyMembers = selectedUserIds.filter(userId => currentMembers.includes(userId));
+
+        console.log("><><><",alreadyMembers);
+
+        if (alreadyMembers.length > 0) {
+            return res.status(400).json({ error: 'One or more users are already members of the group' });
+        }
+
+        group.member_ids = group.member_ids.concat(selectedUserIds);
+
+        console.log("><><><",group.member_ids);
 
         await group.save();
 
-        res.status(201).send('User removed successfully.');
+        res.status(201).send('Users added successfully.');
     } catch (err) {
         console.error(err);
-        res.status(500).send('Error creating group.');
+        res.status(500).send('Error adding users.');
     }
 };
 

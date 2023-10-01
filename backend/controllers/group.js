@@ -5,20 +5,28 @@ const User = require('../models/users');
 exports.insertgroups = async (req, res) => {
     const { selectedUserIds, name } = req.body;
     try {
-        const group = await Group.create({ name,  userId: req.user.id  });
-
-        const selectedUsers = await User.findAll({
-            where: {
-                id: selectedUserIds,
+        const group = new Group({
+            name,
+            member_names: '',
+            member_ids: [],
+            user: {
+                name: req.user.name,
+                userId: req.user._id,
             },
         });
-        await group.addUsers(selectedUsers);
-        const selectedUserNames = selectedUsers.map(user => user.name);
-        const selectedUserId = selectedUsers.map(user => user.id);
-        const userNamesString = [req.user.name, ...selectedUserNames].join(', '); 
-        const memberIds = [req.user.id, ...selectedUserId];
 
-        await group.update({ member_names: userNamesString, member_ids: JSON.stringify(memberIds) });
+        const selectedUsers = await User.find({
+            _id: { $in: selectedUserIds },
+        });
+        
+        const selectedUserNames = selectedUsers.map(user => user.name);
+        const selectedUserId = selectedUsers.map(user => user._id);
+
+        group.member_names = [req.user.name, ...selectedUserNames].join(', '); 
+        group.member_ids = [req.user.id, ...selectedUserId];
+
+        await group.save();
+
         res.status(201).send('Group created successfully.');
     } catch (err) {
         console.error(err);
@@ -28,11 +36,11 @@ exports.insertgroups = async (req, res) => {
 
 exports.findgroups = async (req, res) => {
     try {
-        const groups = await Group.findAll();
-        const filteredGroups = groups.filter(group => {
-            return group.member_names.includes(req.user.name);
+        const groups = await Group.find({
+            'member_ids': req.user._id,
         });
-        res.status(200).json(filteredGroups);
+
+        res.status(200).json(groups);
 
     } catch (err) {
         console.error(err);

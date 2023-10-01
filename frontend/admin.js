@@ -20,7 +20,7 @@ async function handlegroup(event) {
         await addNewPeople(selectedUserIds);
 
         groupform.reset();
-        window.location.href = "chat.html"
+        //window.location.href = "chat.html"
     } catch (error) {
         console.error("Error:", error);
     }

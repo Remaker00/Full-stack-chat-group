@@ -22,7 +22,7 @@ async function handlegroup(event) {
         });
 
         groupform.reset();
-        alert(`${name} Group Successfully Created`); 
+        alert(`${name} Group Successfully Created`);
 
         window.location.href = "chat.html";
     } catch (error) {
@@ -31,28 +31,36 @@ async function handlegroup(event) {
 }
 
 async function fetchUsers() {
-    await fetch(`/user/peoples`, {
-        method: 'GET',
-        headers: {
+    try {
+        const response = await fetch(`/user/peoples`, {
+            method: 'GET',
+            headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
-    })
-    .then(response => response.json())
-        .then(users => {
-            peopleList.innerHTML = '';
-            users.forEach(user => {
-                const li = document.createElement('li');
-                li.textContent = user.name;
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.name = 'selectedUsers';
-                checkbox.value = user.id;
-                li.appendChild(checkbox)
-                peopleList.appendChild(li);
-                
-            });
-        })
-    .catch(error => console.error('Error:', error));
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+        }
+
+        const users = await response.json();
+
+        peopleList.innerHTML = '';
+        users.forEach(user => {
+            const li = document.createElement('li');
+            li.textContent = user.name;
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.name = 'selectedUsers';
+            checkbox.value = user._id;
+
+            li.appendChild(checkbox)
+            peopleList.appendChild(li);
+
+        });
+    } catch (error) {
+        console.error('Error:', error);
+    }
 }
 
 fetchUsers();

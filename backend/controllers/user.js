@@ -1,13 +1,12 @@
-const Sequelize = require('sequelize');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/users');
 
 exports.insertusers = async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, number, password} = req.body;
     try{
         const hashpass = await bcrypt.hash(password, 10);
-        await User.create({ name, email, password: hashpass });
+        await User.create({  name, email, number, password: hashpass });
         res.status(201).send('User LoggedIn successfully.');
     } catch (err) {
         console.error(err);
@@ -18,7 +17,7 @@ exports.insertusers = async (req, res) => {
 exports.checkusers = async (req, res) => {
     const { email, password } = req.body;
     try{
-        const user = await User.findOne({where: { email } });
+        const user = await User.findOne({ email });
 
         if (user) {
             const passwordMatch = await bcrypt.compare(password, user.password);
@@ -38,17 +37,17 @@ exports.checkusers = async (req, res) => {
     }
 };
 
-exports.findAllusers = async (req, res) => {
+exports.findAllusers =  async(req, res) => {
     try {
-        const currentUserID = req.user.id;
-        const people = await User.findAll({
-            where: {
-                id: {
-                    [Sequelize.Op.not]: currentUserID 
-                }
-            }
+        const currentUserID = req.user._id;
+        const currentUser = await User.findById(currentUserID);
+        const people = await User.find({
+            _id: { $ne: currentUserID },
         });
-        res.status(200).json(people);
+        console.log("><><><",people);
+
+        const filteredPeople = people.filter(person => person.name !== currentUser.name);
+        res.status(200).json(filteredPeople);
 
     } catch (err) {
         console.error(err);
